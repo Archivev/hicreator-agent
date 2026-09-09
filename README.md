@@ -36,7 +36,7 @@ npx --yes --prefer-online hicreator-agent@latest prepare --json
 
 ## Billing
 
-AI search, similar-creator search, and email lookup consume hiCreator credits. The skill never automatically retries those tools. Creating, listing, and adding existing creators to favorites are free.
+AI search is a free feature. Similar-creator search costs 0.5 credits per call, and email lookup costs 0.1 credits for each valid creator profile URL. The skill never automatically retries paid tools.
 
 ## Local Files
 

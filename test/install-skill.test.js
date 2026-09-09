@@ -24,6 +24,8 @@ test("installs, skips unchanged content, and repairs a modified skill", async ()
     );
     assert.match(skill, /name: hicreator/u);
     assert.match(skill, /ISO 3166-1 alpha-2/u);
+    assert.match(skill, /0\.1 credits for each valid creator profile URL/u);
+    assert.match(skill, /\/hicreator Find 10 Instagram tennis creators/u);
   }
 
   const unchanged = await syncSkill({ home, clients });
