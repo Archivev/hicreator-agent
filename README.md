@@ -1,12 +1,12 @@
 # hiCreator Agent
 
-Install one hiCreator skill and remote MCP connection for Codex, Claude Code, and Cursor. It provides AI creator search, similar-creator search, email lookup, folder creation, folder listing, and batch save.
+Connect AI agents to hiCreator creator search, email lookup, and favorites. The installer provides verified one-step setup for Codex, Claude Code, and Cursor. Any client that supports remote Streamable HTTP MCP with a custom `Authorization` header can use the same six tools.
 
 ## Requirements
 
 - Node.js 20 or newer.
 - A hiCreator Developer API key beginning with `hc_`.
-- Codex, Claude Code, or Cursor installed locally.
+- Codex, Claude Code, or Cursor for verified one-step setup, or another compatible MCP client for guided setup.
 
 ## Install
 
@@ -36,7 +36,7 @@ npx --yes --prefer-online hicreator-agent@latest prepare --json
 
 ## Billing
 
-AI search, similar-creator search, and email lookup consume hiCreator credits. The skill never automatically retries those tools. Creating, listing, and adding existing creators to folders are free.
+AI search, similar-creator search, and email lookup consume hiCreator credits. The skill never automatically retries those tools. Creating, listing, and adding existing creators to favorites are free.
 
 ## Local Files
 
@@ -46,3 +46,13 @@ AI search, similar-creator search, and email lookup consume hiCreator credits. T
 - Cursor skill: `~/.cursor/skills/hicreator/`
 
 Existing unrelated MCP servers and settings are preserved.
+
+## Other AI Clients
+
+For clients outside the verified list, add the remote MCP server using the client's official configuration:
+
+- Transport: Streamable HTTP
+- URL: `https://mcp.hicreator.ai/mcp`
+- Header: `Authorization: Bearer <HICREATOR_API_KEY>`
+
+Keep the API key in the client's local secret or header configuration. Do not paste it into an AI conversation. If the client also implements the Agent Skills specification, install `skills/hicreator/` into its supported skills directory; the MCP tools still work when Agent Skills are unavailable.

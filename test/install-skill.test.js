@@ -6,12 +6,16 @@ import test from "node:test";
 
 import { clientSkillPath, syncSkill } from "../src/install-skill.js";
 
+const packageVersion = JSON.parse(
+  await readFile(new URL("../package.json", import.meta.url), "utf8"),
+).version;
+
 test("installs, skips unchanged content, and repairs a modified skill", async () => {
   const home = await mkdtemp(join(tmpdir(), "hicreator-agent-skill-"));
   const clients = ["codex", "claude", "cursor"];
   const installed = await syncSkill({ home, clients });
   assert.equal(installed.updated, true);
-  assert.equal(installed.version, "0.1.0");
+  assert.equal(installed.version, packageVersion);
 
   for (const client of clients) {
     const skill = await readFile(
@@ -33,7 +37,7 @@ test("installs, skips unchanged content, and repairs a modified skill", async ()
   const manifest = JSON.parse(
     await readFile(join(home, ".hicreator", "manifest.json"), "utf8"),
   );
-  assert.equal(manifest.version, "0.1.0");
+  assert.equal(manifest.version, packageVersion);
   assert.equal(manifest.checksum.length, 64);
 });
 
