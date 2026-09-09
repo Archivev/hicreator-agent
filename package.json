@@ -1,5 +1,5 @@
 {
-  "name": "@hicreator/agent",
+  "name": "hicreator-agent",
   "version": "0.1.0",
   "description": "Install and update the hiCreator Agent Skill and remote MCP connection.",
   "type": "module",

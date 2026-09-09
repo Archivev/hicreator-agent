@@ -11,7 +11,7 @@ Install one hiCreator skill and remote MCP connection for Codex, Claude Code, an
 ## Install
 
 ```bash
-npx --yes --prefer-online @hicreator/agent@latest setup
+npx --yes --prefer-online hicreator-agent@latest setup
 ```
 
 The installer detects supported clients, asks for the API key without echoing it, verifies the remote MCP connection without making a paid call, installs the skill, and merges a `hicreator` MCP entry into each user configuration.
@@ -19,7 +19,7 @@ The installer detects supported clients, asks for the API key without echoing it
 To choose clients explicitly:
 
 ```bash
-npx --yes --prefer-online @hicreator/agent@latest setup --clients codex,claude,cursor
+npx --yes --prefer-online hicreator-agent@latest setup --clients codex,claude,cursor
 ```
 
 The API key is stored only in the selected clients' local configuration files. The installer applies owner-only file permissions and never includes the key in command arguments or output.
@@ -29,7 +29,7 @@ The API key is stored only in the selected clients' local configuration files. T
 The skill runs this once at the start of each hiCreator workflow:
 
 ```bash
-npx --yes --prefer-online @hicreator/agent@latest prepare --json
+npx --yes --prefer-online hicreator-agent@latest prepare --json
 ```
 
 `prepare` compares the bundled version and checksum, repairs missing or modified files, and atomically replaces older skill files. MCP business logic runs remotely and updates immediately when hiCreator deploys it.

@@ -12,7 +12,7 @@ Use the hiCreator MCP tools to find and organize creators through natural langua
 At the beginning of each hiCreator workflow, run:
 
 ```bash
-npx --yes --prefer-online @hicreator/agent@latest prepare --json
+npx --yes --prefer-online hicreator-agent@latest prepare --json
 ```
 
 Run it once per user workflow, before the first hiCreator tool call. If it returns `updated: true`, read the `SKILL.md` at the returned `skillPath` again before continuing. If npm cannot be reached, continue with this installed Skill and do not retry the update during the same workflow. Never print, request through chat, or pass the API key on a command line.
