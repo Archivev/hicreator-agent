@@ -36,7 +36,7 @@ npx --yes --prefer-online hicreator-agent@latest prepare --json
 
 ## Billing
 
-AI search is a free feature. Similar-creator search costs 0.5 credits per call, and email lookup costs 0.1 credits for each valid creator profile URL. The skill never automatically retries paid tools.
+AI search and similar-creator search each cost 0.5 credits per returned creator. Email lookup costs 0.1 credits for each valid creator profile URL. The skill never automatically retries paid tools.
 
 ## Local Files
 

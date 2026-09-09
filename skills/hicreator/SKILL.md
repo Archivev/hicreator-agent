@@ -36,7 +36,7 @@ Run it once per user workflow, before the first hiCreator tool call. If it retur
 
 ## Billing Safety
 
-`search_creators_ai` is a free feature. `find_similar_creators` costs 0.5 credits per call. `find_creator_email` costs 0.1 credits for each valid creator profile URL. State the operation and quantity before a paid call. When the user's request already specifies them, proceed without asking the same question again.
+`search_creators_ai` and `find_similar_creators` each cost 0.5 credits per returned creator. `find_creator_email` costs 0.1 credits for each valid creator profile URL. State the operation and quantity before a paid call. When the user's request already specifies them, proceed without asking the same question again.
 
 Never automatically retry a paid tool after a timeout, disconnect, or uncertain result. Tell the user the request may have been charged and ask them to inspect API history before deciding whether to retry. Never silently raise `limit`, broaden filters, run a second search, or perform email lookup.
 
