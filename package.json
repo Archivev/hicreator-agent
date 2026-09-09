@@ -1,0 +1,41 @@
+{
+  "name": "@hicreator/agent",
+  "version": "0.1.0",
+  "description": "Install and update the hiCreator Agent Skill and remote MCP connection.",
+  "type": "module",
+  "bin": {
+    "hicreator-agent": "./bin/hicreator-agent.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "skills"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check bin/hicreator-agent.js && node --check src/*.js && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Archivev/hicreator-agent.git"
+  },
+  "homepage": "https://github.com/Archivev/hicreator-agent#readme",
+  "bugs": {
+    "url": "https://github.com/Archivev/hicreator-agent/issues"
+  },
+  "keywords": [
+    "hicreator",
+    "agent-skills",
+    "mcp",
+    "codex",
+    "claude-code",
+    "cursor"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
