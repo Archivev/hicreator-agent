@@ -140,7 +140,6 @@ export async function syncSkill({ home, clients, source = "npm" }) {
     return {
       version,
       updated,
-      offline: process.env.npm_config_offline === "true",
       skillPath: targets.codex ?? Object.values(targets)[0],
       targets,
     };
