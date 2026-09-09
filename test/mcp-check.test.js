@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import test from "node:test";
 
-import { verifyMcp } from "../src/mcp-check.js";
+import { McpConnectionError, verifyMcp } from "../src/mcp-check.js";
 
 const tools = [
   "search_creators_ai",
@@ -47,6 +47,32 @@ test("verifies initialize and all six tools without calling a business tool", as
     );
     assert.deepEqual(result.tools, tools);
     assert.deepEqual(methods, ["initialize", "tools/list"]);
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) =>
+      error ? reject(error) : resolve()));
+  }
+});
+
+test("classifies authentication failures without exposing the key", async () => {
+  const server = createServer((_request, response) => {
+    response.writeHead(401).end();
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const address = server.address();
+    await assert.rejects(
+      () => verifyMcp(
+        `http://127.0.0.1:${address.port}/mcp`,
+        "hc_rejected_key_long_enough",
+      ),
+      (error) => {
+        assert.ok(error instanceof McpConnectionError);
+        assert.equal(error.kind, "auth");
+        assert.equal(error.status, 401);
+        assert.doesNotMatch(error.message, /hc_rejected/u);
+        return true;
+      },
+    );
   } finally {
     await new Promise((resolve, reject) => server.close((error) =>
       error ? reject(error) : resolve()));

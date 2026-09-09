@@ -1,6 +1,6 @@
 {
   "name": "hicreator-agent",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Install and update the hiCreator Agent Skill and remote MCP connection.",
   "type": "module",
   "bin": {

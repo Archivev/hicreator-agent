@@ -1,5 +1,4 @@
-import { createInterface } from "node:readline/promises";
-import { Writable } from "node:stream";
+import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 
 import {
@@ -13,6 +12,14 @@ import {
 } from "./configure.js";
 import { installedClients, syncSkill } from "./install-skill.js";
 import { verifyMcp } from "./mcp-check.js";
+import {
+  readMaskedSecret,
+  resolveSetupConnection,
+} from "./setup-flow.js";
+
+const packageVersion = JSON.parse(
+  await readFile(new URL("../package.json", import.meta.url), "utf8"),
+).version;
 
 function parseOptions(argv) {
   const [command, ...rest] = argv;
@@ -35,37 +42,6 @@ function parseOptions(argv) {
   return options;
 }
 
-async function promptForApiKey() {
-  if (!process.stdin.isTTY) {
-    throw new Error(
-      "Set HICREATOR_API_KEY or run setup in an interactive terminal.",
-    );
-  }
-  let muted = false;
-  const output = new Writable({
-    write(chunk, encoding, callback) {
-      if (!muted) process.stderr.write(chunk, encoding);
-      callback();
-    },
-  });
-  const readline = createInterface({ input: process.stdin, output, terminal: true });
-  const answerPromise = readline.question("hiCreator API key: ");
-  muted = true;
-  const answer = await answerPromise;
-  muted = false;
-  process.stderr.write("\n");
-  readline.close();
-  return answer;
-}
-
-function validateApiKey(value) {
-  const apiKey = value?.trim();
-  if (!/^hc_[A-Za-z0-9_-]{17,253}$/u.test(apiKey ?? "")) {
-    throw new Error("Enter a valid hiCreator Developer API key.");
-  }
-  return apiKey;
-}
-
 function validateMcpUrl(value) {
   let url;
   try {
@@ -86,14 +62,26 @@ function validateMcpUrl(value) {
 function printResult(result, json) {
   if (json) process.stdout.write(`${JSON.stringify(result)}\n`);
   else {
-    process.stdout.write(
-      `hiCreator ${result.version} ready for ${result.clients.join(", ")}.\n`,
-    );
+    const configurations = result.clients
+      .map((client) => `- ${client}: ${result.configPaths[client]}`)
+      .join("\n");
+    process.stdout.write([
+      `hiCreator ${result.version} is ready.`,
+      result.verified
+        ? `MCP tools: ${result.toolCount} verified.`
+        : "MCP tools: verification skipped.",
+      "Configured clients:",
+      configurations,
+      "",
+    ].join("\n"));
   }
 }
 
 export async function setup(options = {}) {
   const home = options.home ?? homedir();
+  const output = options.output ?? process.stderr;
+  const report = options.report ?? ((message) => output.write(`${message}\n`));
+  report("[1/5] Detecting supported clients...");
   const clients = options.clients
     ?? await detectClients(options.pathValue);
   if (clients.length === 0) {
@@ -101,25 +89,50 @@ export async function setup(options = {}) {
       `No supported client found. Install one of: ${SUPPORTED_CLIENTS.join(", ")}.`,
     );
   }
-  const apiKey = validateApiKey(
-    options.apiKey ?? process.env.HICREATOR_API_KEY ?? await promptForApiKey(),
-  );
+  report(`[ok] Found: ${clients.join(", ")}.`);
+
+  report("[2/5] Reading the API Key...");
   const mcpUrl = validateMcpUrl(options.mcpUrl ?? DEFAULT_MCP_URL);
-  const connection = options.skipVerify
-    ? null
-    : await verifyMcp(mcpUrl, apiKey);
+  const suppliedApiKey = options.apiKey ?? process.env.HICREATOR_API_KEY;
+  const prompt = suppliedApiKey === undefined
+    ? ({ attempt, maxAttempts }) => readMaskedSecret({
+        input: options.input ?? process.stdin,
+        output,
+        label: attempt === 1
+          ? "hiCreator API Key: "
+          : `hiCreator API Key (${attempt}/${maxAttempts}): `,
+      })
+    : undefined;
+  const { apiKey, connection } = await resolveSetupConnection({
+    initialApiKey: suppliedApiKey,
+    prompt: options.prompt ?? prompt,
+    verify: options.verify ?? ((value) => verifyMcp(mcpUrl, value, {
+      clientVersion: packageVersion,
+    })),
+    report,
+    sleep: options.sleep,
+    skipVerify: options.skipVerify,
+  });
+  if (options.skipVerify) report("[3/5] MCP connection verification skipped.");
+
+  report("[4/5] Installing the hiCreator Skill...");
   const skill = await syncSkill({ home, clients });
+  report(`[ok] Skill ${skill.updated ? "installed or updated" : "is already current"} (${skill.version}).`);
+
+  report("[5/5] Configuring clients...");
   const configPaths = await configureClients({
     home,
     clients,
     apiKey,
     mcpUrl,
   });
+  report(`[ok] Configured: ${clients.join(", ")}.`);
   return {
     ...skill,
     clients,
     configPaths,
     mcpUrl,
+    toolCount: connection?.tools.length ?? 0,
     verified: Boolean(connection),
   };
 }

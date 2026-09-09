@@ -14,7 +14,7 @@ Connect AI agents to hiCreator creator search, email lookup, and favorites. The 
 npx --yes --prefer-online hicreator-agent@latest setup
 ```
 
-The installer detects supported clients, asks for the API key without echoing it, verifies the remote MCP connection without making a paid call, installs the skill, and merges a `hicreator` MCP entry into each user configuration.
+The installer detects supported clients, shows masked `*` feedback while the API key is entered, validates its format, and verifies the remote MCP connection without making a paid call. Invalid keys can be entered again, and temporary network or server failures retry the free connection check up to three times. Client configuration is written only after verification succeeds.
 
 To choose clients explicitly:
 
