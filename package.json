@@ -4,7 +4,7 @@
   "description": "Install and update the hiCreator Agent Skill and remote MCP connection.",
   "type": "module",
   "bin": {
-    "hicreator-agent": "./bin/hicreator-agent.js"
+    "hicreator-agent": "bin/hicreator-agent.js"
   },
   "files": [
     "bin",
