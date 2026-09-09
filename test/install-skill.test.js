@@ -23,6 +23,7 @@ test("installs, skips unchanged content, and repairs a modified skill", async ()
       "utf8",
     );
     assert.match(skill, /name: hicreator/u);
+    assert.match(skill, /ISO 3166-1 alpha-2/u);
   }
 
   const unchanged = await syncSkill({ home, clients });

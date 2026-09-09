@@ -20,11 +20,12 @@ Run it once per user workflow, before the first hiCreator tool call. If it retur
 ## Workflow
 
 1. Infer or confirm the platform, requested count, hard filters, and whether the user wants results saved.
-2. Use `search_creators_ai` for intent-based discovery or `find_similar_creators` for a reference account.
-3. Check returned results against hard constraints and state which constraints the data could not verify.
-4. To save results, call `list_creator_folders`; create the destination favorites list with `create_creator_folder` only when needed; then call `add_creators_to_folder` once with stable `platform` and `creator_id` values from search results.
-5. Call `find_creator_email` only when the user explicitly asks for an email and the selected result does not already include one.
-6. Report returned count, verified constraints, favorites result, and any per-item failures.
+2. Convert requested countries or regions to ISO 3166-1 alpha-2 codes before passing `regions` (for example, `US` or `GB`). Never pass country names.
+3. Use `search_creators_ai` for intent-based discovery or `find_similar_creators` for a reference account.
+4. Check returned results against hard constraints and state which constraints the data could not verify.
+5. To save results, call `list_creator_folders`; create the destination favorites list with `create_creator_folder` only when needed; then call `add_creators_to_folder` once with stable `platform` and `creator_id` values from search results.
+6. Call `find_creator_email` only when the user explicitly asks for an email and the selected result does not already include one.
+7. Report returned count, verified constraints, favorites result, and any per-item failures.
 
 ## Billing Safety
 
