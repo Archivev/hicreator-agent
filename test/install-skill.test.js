@@ -27,6 +27,10 @@ test("installs, skips unchanged content, and repairs a modified skill", async ()
     assert.match(skill, /each cost 0\.5 credits per returned creator/u);
     assert.match(skill, /0\.1 credits for each valid creator profile URL/u);
     assert.match(skill, /\/hicreator Find 10 Instagram tennis creators/u);
+    assert.match(skill, /permanently deletes the folder/u);
+    assert.match(skill, /Switching from `public` back to `workspace`/u);
+    assert.match(skill, /`today`, `7_days`, or `30_days`/u);
+    assert.match(skill, /never call `find_creator_email` or another paid tool to enrich an export/u);
   }
 
   const unchanged = await syncSkill({ home, clients });

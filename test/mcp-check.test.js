@@ -10,10 +10,18 @@ const tools = [
   "find_creator_email",
   "create_creator_folder",
   "list_creator_folders",
+  "rename_creator_folder",
+  "delete_creator_folder",
+  "list_creators_in_folder",
   "add_creators_to_folder",
+  "remove_creator_from_folder",
+  "remove_creators_from_folder",
+  "set_creator_folder_sharing",
+  "export_creator_folder",
+  "get_creator_folder_export",
 ];
 
-test("verifies initialize and all six tools without calling a business tool", async () => {
+test("verifies initialize and the complete toolset without calling a business tool", async () => {
   const methods = [];
   const server = createServer((request, response) => {
     let body = "";

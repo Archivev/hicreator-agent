@@ -1,4 +1,4 @@
 interface:
   display_name: "hiCreator"
-  short_description: "Find and organize creators with hiCreator"
-  default_prompt: "Use hiCreator to find creators and organize the results in a folder."
+  short_description: "Find, organize, share, and export creators"
+  default_prompt: "Use hiCreator to find creators or manage my favorite folders."

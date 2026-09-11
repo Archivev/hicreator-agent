@@ -1,6 +1,6 @@
 # hiCreator Agent
 
-Connect AI agents to hiCreator creator search, email lookup, and favorites. The installer provides verified one-step setup for Codex, Claude Code, and Cursor. Any client that supports remote Streamable HTTP MCP with a custom `Authorization` header can use the same six tools.
+Connect AI agents to hiCreator creator search, email lookup, and complete favorite-folder workflows. The installer provides verified one-step setup for Codex, Claude Code, and Cursor. Any client that supports remote Streamable HTTP MCP with a custom `Authorization` header can use the same tools.
 
 ## Requirements
 
@@ -37,6 +37,8 @@ npx --yes --prefer-online hicreator-agent@latest prepare --json
 ## Billing
 
 AI search and similar-creator search each cost 0.5 credits per returned creator. Email lookup costs 0.1 credits for each valid creator profile URL. The skill never automatically retries paid tools.
+
+Favorite-folder tools are free. They support creation, cursor pagination, rename, permanent deletion, member listing, single or batch removal, Workspace/public sharing with a stable link, and asynchronous Excel export for today, the last 7 days, or the last 30 days. Excel exports reuse hiCreator's existing 100,000-row and file-size safeguards.
 
 ## Local Files
 
