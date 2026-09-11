@@ -26,6 +26,8 @@ test("installs, skips unchanged content, and repairs a modified skill", async ()
     assert.match(skill, /ISO 3166-1 alpha-2/u);
     assert.match(skill, /each cost 0\.5 credits per returned creator/u);
     assert.match(skill, /0\.1 credits for each valid creator profile URL/u);
+    assert.match(skill, /Mention billing only before a paid call or when the user asks about it/u);
+    assert.match(skill, /Do not describe favorite-folder operations as free/u);
     assert.match(skill, /\/hicreator Find 10 Instagram tennis creators/u);
     assert.match(skill, /permanently deletes the folder/u);
     assert.match(skill, /Switching from `public` back to `workspace`/u);

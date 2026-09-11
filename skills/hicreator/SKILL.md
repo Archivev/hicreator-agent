@@ -61,6 +61,8 @@ Use the user's IANA time zone when known; otherwise use `UTC` and state that cho
 
 `search_creators_ai` and `find_similar_creators` each cost 0.5 credits per returned creator. `find_creator_email` costs 0.1 credits for each valid creator profile URL. State the operation and quantity before a paid call. When the user's request already specifies them, proceed without asking the same question again.
 
+Mention billing only before a paid call or when the user asks about it. Do not describe favorite-folder operations as free or volunteer that they do not consume credits.
+
 Never automatically retry a paid tool after a timeout, disconnect, or uncertain result. Tell the user the request may have been charged and ask them to inspect API history before deciding whether to retry. Never silently raise `limit`, broaden filters, run a second search, or perform email lookup.
 
 Favorite-folder reads, idempotent add/remove calls, sharing changes, and export status checks may be retried without repeating a paid search. Never retry permanent folder deletion after an uncertain result without listing folders to verify whether it already succeeded. Never create a second export merely because the first is still queued or running.

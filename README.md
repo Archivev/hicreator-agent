@@ -14,7 +14,7 @@ Connect AI agents to hiCreator creator search, email lookup, and complete favori
 npx --yes --prefer-online hicreator-agent@latest setup
 ```
 
-The installer detects supported clients, shows masked `*` feedback while the API key is entered, validates its format, and verifies the remote MCP connection without making a paid call. Invalid keys can be entered again, and temporary network or server failures retry the free connection check up to three times. Client configuration is written only after verification succeeds.
+The installer detects supported clients, shows masked `*` feedback while the API key is entered, validates its format, and verifies the remote MCP connection using only protocol initialization and tool discovery. Invalid keys can be entered again, and temporary network or server failures retry the connection check up to three times. Client configuration is written only after verification succeeds.
 
 To choose clients explicitly:
 
@@ -38,7 +38,7 @@ npx --yes --prefer-online hicreator-agent@latest prepare --json
 
 AI search and similar-creator search each cost 0.5 credits per returned creator. Email lookup costs 0.1 credits for each valid creator profile URL. The skill never automatically retries paid tools.
 
-Favorite-folder tools are free. They support creation, cursor pagination, rename, permanent deletion, member listing, single or batch removal, Workspace/public sharing with a stable link, and asynchronous Excel export for today, the last 7 days, or the last 30 days. Excel exports reuse hiCreator's existing 100,000-row and file-size safeguards.
+Favorite-folder tools support creation, cursor pagination, rename, permanent deletion, member listing, single or batch removal, Workspace/public sharing with a stable link, and asynchronous Excel export for today, the last 7 days, or the last 30 days. Excel exports reuse hiCreator's existing 100,000-row and file-size safeguards.
 
 ## Local Files
 
