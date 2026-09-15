@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
+import { mkdtemp, mkdir, readFile, rm } from "node:fs/promises";
 import { createServer } from "node:http";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
+import { promisify } from "node:util";
 
 import { McpConnectionError, verifyMcp } from "../src/mcp-check.js";
 
@@ -20,6 +25,8 @@ const tools = [
   "export_creator_folder",
   "get_creator_folder_export",
 ];
+
+const runFile = promisify(execFile);
 
 test("verifies initialize and the complete toolset without calling a business tool", async () => {
   const methods = [];
@@ -142,4 +149,38 @@ for (const format of ["json", "sse-lf", "sse-crlf"]) {
       assert.deepEqual(methods, ["initialize", "tools/list"]);
     });
   }
+}
+
+for (const client of ["codex", "claude", "cursor"]) {
+  test(`native CLI installs ${client} and prepares through a real subprocess`, async (t) => {
+    const root = await mkdtemp(join(tmpdir(), "hicreator-cli-"));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    const home = join(root, "用户 with spaces");
+    await mkdir(home);
+    const { url, methods } = await withMcpServer(t, (message, response) => {
+      const result = message.method === "initialize"
+        ? { serverInfo: { name: "hicreator", version: "test" } }
+        : { tools: tools.map((name) => ({ name })) };
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ jsonrpc: "2.0", id: message.id, result }));
+    });
+    const env = {
+      ...process.env,
+      HOME: home,
+      USERPROFILE: home,
+      HICREATOR_API_KEY: "hc_subprocess_test_not_a_real_credential",
+    };
+    const installed = await runFile(process.execPath, ["bin/hicreator-agent.js", "setup", "--clients", client, "--mcp-url", url, "--json"], { env });
+    const result = JSON.parse(installed.stdout);
+    assert.deepEqual(result.clients, [client]);
+    assert.equal(result.verified, true);
+    assert.equal(result.toolCount, tools.length);
+    assert.ok(result.targets[client].startsWith(home));
+    assert.ok((await readFile(result.configPaths[client], "utf8")).includes(url));
+    assert.ok(!installed.stdout.includes(env.HICREATOR_API_KEY));
+    assert.ok(!installed.stderr.includes(env.HICREATOR_API_KEY));
+    const prepared = await runFile(process.execPath, ["bin/hicreator-agent.js", "prepare", "--json"], { env });
+    assert.equal(JSON.parse(prepared.stdout).updated, false);
+    assert.deepEqual(methods, ["initialize", "tools/list"]);
+  });
 }
