@@ -22,17 +22,17 @@ To choose clients explicitly:
 npx --yes --prefer-online hicreator-agent@latest setup --clients codex,claude,cursor
 ```
 
-The API key is stored only in the selected clients' local configuration files. The installer applies owner-only file permissions and never includes the key in command arguments or output.
+The API key is stored only in the selected clients' local configuration files. On macOS/Linux the installer applies owner-only file permissions; on Windows files inherit the user profile’s access controls. It never includes the key in command arguments or output.
 
 ## Updates
 
-The skill runs this once at the start of each hiCreator workflow:
+For installer-managed Skills, an optional update runs once at the start of each hiCreator workflow when Node.js/npm are available:
 
 ```bash
 npx --yes --prefer-online hicreator-agent@latest prepare --json
 ```
 
-`prepare` compares the bundled version and checksum, repairs missing or modified files, and atomically replaces older skill files. MCP business logic runs remotely and updates immediately when hiCreator deploys it.
+`prepare` compares the bundled version and checksum, repairs missing or modified files, and atomically replaces older skill files. Manual installations and clients without command execution or npm use their installed Skill directly. A failed update does not block MCP usage. On native Windows, use `npx.cmd`; keep WSL installations separate from native Windows clients. MCP business logic runs remotely and updates immediately when hiCreator deploys it.
 
 ## Billing
 

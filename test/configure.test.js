@@ -52,7 +52,10 @@ test("merges all client configs and safely updates its managed entries", async (
     join(home, ".claude.json"),
     join(home, ".cursor", "mcp.json"),
   ]) {
-    assert.equal((await stat(path)).mode & 0o777, 0o600);
+    // Windows uses inherited ACLs; POSIX mode bits cannot represent them.
+    if (process.platform !== "win32") {
+      assert.equal((await stat(path)).mode & 0o777, 0o600);
+    }
   }
 });
 

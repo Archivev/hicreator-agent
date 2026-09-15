@@ -87,13 +87,18 @@ export async function configureClients({ home, clients, apiKey, mcpUrl }) {
 }
 
 async function executableExists(command, pathValue = process.env.PATH ?? "") {
+  const names = process.platform === "win32"
+    ? [command, ...[".exe", ".cmd", ".bat"].map((extension) => `${command}${extension}`)]
+    : [command];
   for (const directory of pathValue.split(delimiter)) {
     if (!directory) continue;
-    try {
-      await access(join(directory, command), fsConstants.X_OK);
-      return true;
-    } catch {
-      // Continue through PATH entries.
+    for (const name of names) {
+      try {
+        await access(join(directory, name), fsConstants.X_OK);
+        return true;
+      } catch {
+        // Continue through PATH entries and native Windows command shims.
+      }
     }
   }
   return false;
@@ -111,6 +116,7 @@ export function parseClients(value) {
   if (value === "all") return [...SUPPORTED_CLIENTS];
   const clients = [...new Set(value.split(",").map((item) => item.trim())
     .filter(Boolean))];
+  if (clients.length === 0) throw new Error("Select at least one client.");
   const unsupported = clients.filter((client) =>
     !SUPPORTED_CLIENTS.includes(client));
   if (unsupported.length > 0) {

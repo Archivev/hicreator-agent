@@ -16,13 +16,17 @@ Find 20 US pet product reviewers on TikTok with at least 100K followers
 
 ## Start
 
-At the beginning of each hiCreator workflow, run:
+Use the hiCreator MCP tools already loaded by the current client. If they are missing, follow this client's official MCP setup or reload instructions; do not treat installing this Skill as proof that MCP is connected.
+
+Skill updates are optional. Only when the current client's Skill is managed by `hicreator-agent` (its target is recorded in `~/.hicreator/manifest.json`) and Node.js 20+ with npm are available in that same environment, run once before the first tool call:
 
 ```bash
 npx --yes --prefer-online hicreator-agent@latest prepare --json
 ```
 
-Run it once per user workflow, before the first hiCreator tool call. If it returns `updated: true`, read the `SKILL.md` at the returned `skillPath` again before continuing. If npm cannot be reached, continue with this installed Skill and do not retry the update during the same workflow. Never print, request through chat, or pass the API key on a command line.
+On native Windows PowerShell/CMD, use `npx.cmd`; on macOS or WSL, use `npx`. Keep Windows and WSL client installations separate. If `updated: true`, reread the `SKILL.md` for the current client in the returned `targets` before continuing. For manual installations, unavailable command execution, missing Node/npm or a failed update, continue with the installed Skill without retrying the update during this workflow. Do not run `setup` merely to enable updates.
+
+Never request the API key through chat, put it in command arguments, or expose it when reading configuration. Credential entry belongs in the client's credential UI or the user's own local interactive terminal.
 
 ## Workflow
 
