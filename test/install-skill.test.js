@@ -22,17 +22,7 @@ test("installs, skips unchanged content, and repairs a modified skill", async ()
       join(clientSkillPath(home, client), "SKILL.md"),
       "utf8",
     );
-    assert.match(skill, /name: hicreator/u);
-    assert.match(skill, /ISO 3166-1 alpha-2/u);
-    assert.match(skill, /each cost 0\.5 credits per returned creator/u);
-    assert.match(skill, /0\.2 credits for each valid creator profile URL/u);
-    assert.match(skill, /Mention billing only before a paid call or when the user asks about it/u);
-    assert.match(skill, /Do not describe favorite-folder operations as free/u);
-    assert.match(skill, /\/hicreator Find 10 Instagram tennis creators/u);
-    assert.match(skill, /permanently deletes the folder/u);
-    assert.match(skill, /Switching from `public` back to `workspace`/u);
-    assert.match(skill, /`today`, `7_days`, or `30_days`/u);
-    assert.match(skill, /never call `find_creator_email` or another paid tool to enrich an export/u);
+    assert.equal(skill, await readFile(new URL("../skills/hicreator/SKILL.md", import.meta.url), "utf8"));
   }
 
   const unchanged = await syncSkill({ home, clients });

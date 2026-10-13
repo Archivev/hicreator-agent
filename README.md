@@ -1,6 +1,6 @@
 # hiCreator Agent
 
-Connect AI agents to hiCreator creator search, email lookup, and complete favorite-folder workflows. The installer provides verified one-step setup for Codex, Claude Code, and Cursor. Any client that supports remote Streamable HTTP MCP with a custom `Authorization` header can use the same tools.
+Connect AI agents to hiCreator creator discovery, profile and video details, contact emails, audience and fake-follower reports, and favorite-folder workflows. The installer provides verified one-step setup for Codex, Claude Code, and Cursor. Any client that supports remote Streamable HTTP MCP with a custom `Authorization` header can use the same tools.
 
 ## Requirements
 
@@ -36,9 +36,17 @@ npx --yes --prefer-online hicreator-agent@latest prepare --json
 
 ## Billing
 
-AI search and similar-creator search each cost 0.5 credits per returned creator. Email lookup costs 0.2 credits for each valid creator profile URL, including when no public email is found. The skill never automatically retries paid tools.
+AI search and similar-creator search each cost 0.5 credits per returned creator. Email lookup costs 0.2 credits for each valid creator profile URL, including when no public email is found. Creator and video details each cost 0.1 credits per successful query. New audience reports cost 40 credits and fake-follower reports cost 30 credits; eligible existing reports can be reused. These are default prices; server pricing takes precedence. The skill never automatically retries paid queries or report submissions.
 
-Favorite-folder tools support creation, cursor pagination, rename, permanent deletion, member listing, single or batch removal, Workspace/public sharing with a stable link, and asynchronous Excel export for today, the last 7 days, or the last 30 days. Excel exports reuse hiCreator's existing 100,000-row and file-size safeguards.
+Favorite-folder tools support creation, cursor pagination, folder details, rename, permanent deletion, member listing, single or batch removal, Workspace/public sharing with a stable link, and asynchronous Excel export for today, the last 7 days, or the last 30 days. Excel exports reuse hiCreator's existing 100,000-row and file-size safeguards.
+
+## Analysis reports
+
+Submit one creator profile URL, save the returned task ID and type, and query that same task with `get_creator_report`. Poll about every 5 seconds while queued or running; stop on succeeded, unavailable, or failed. Report submission and polling are separate operations. YouTube comment-account indicators do not measure the share of fake subscribers.
+
+## Release order
+
+Deploy the backend's 20-tool MCP set before publishing this installer and the updated capabilities page. Setup checks every expected tool using `initialize` and `tools/list`, without executing business operations. Existing clients keep their previous tools; reload tool discovery to access additions. Skill updates alone do not deploy backend capabilities.
 
 ## Local Files
 

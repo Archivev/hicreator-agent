@@ -13,8 +13,14 @@ const tools = [
   "search_creators_ai",
   "find_similar_creators",
   "find_creator_email",
+  "get_creator_detail",
+  "get_video_detail",
+  "create_audience_analysis",
+  "create_fake_follower_check",
+  "get_creator_report",
   "create_creator_folder",
   "list_creator_folders",
+  "get_creator_folder",
   "rename_creator_folder",
   "delete_creator_folder",
   "list_creators_in_folder",
@@ -127,11 +133,12 @@ for (const [status, kind] of [[400, "protocol"], [401, "auth"], [403, "auth"], [
 }
 
 for (const format of ["json", "sse-lf", "sse-crlf"]) {
-  for (const variant of ["complete", "extra-tool", "wrong-names-same-count", "missing-tool"]) {
+  for (const variant of ["complete", "extra-tool", "wrong-names-same-count", "missing-tool", "missing-report-query"]) {
     test(`${format} discovers ${variant} by tool names rather than count`, async (t) => {
       const names = variant === "complete" ? tools
         : variant === "extra-tool" ? [...tools, "future_tool"]
           : variant === "wrong-names-same-count" ? [...tools.slice(1), "wrong_tool"]
+            : variant === "missing-report-query" ? tools.filter((name) => name !== "get_creator_report")
             : tools.slice(1);
       const { url, methods } = await withMcpServer(t, (message, response) => {
         const result = message.method === "initialize"
