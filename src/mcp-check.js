@@ -3,6 +3,7 @@ const EXPECTED_TOOLS = [
   "search_creators_ai",
   "find_similar_creators",
   "find_creator_email",
+  "find_creators_by_email",
   "get_creator_detail",
   "get_video_detail",
   "create_audience_analysis",
