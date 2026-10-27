@@ -43,8 +43,5 @@ All creator fields below are always present. Only `id`, `platform`, and `email` 
 | `accountType` | string or null | Twitter account type; unknown or other platforms are null. |
 | `accountPositioning` | string[] or null | Video-platform positioning labels or Twitter roles. |
 | `aiDescription` | string or null | Stored AI creator description. |
-| `lastOriginalPublishedAt` | ISO 8601 UTC or null | Latest stored Twitter original post time. |
-| `lastActivityAt` | ISO 8601 UTC or null | Latest stored Twitter activity time. |
-| `capturedAt` | ISO 8601 UTC or null | Stored Twitter capture time, not this request's fetch time. |
 
 The flat field names align with public creator search and Creator Lookup. There is no similarity `score`, since this is an exact email match. Nulls do not authorize a separate paid enrichment call.
