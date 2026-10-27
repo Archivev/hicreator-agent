@@ -58,9 +58,11 @@ The product's **Creator Lookup / 查达人** page supports all four platforms at
 
 ## Reverse lookup by email
 
-`find_creators_by_email` accepts `{ "emails": ["contact@example.com"] }`, with 1–100 complete addresses per call. The server trims, lowercases, and deduplicates before billing. It matches exact public contact emails against existing profiles across all four platforms; it does not crawl, refresh, or infer account ownership. One address may match multiple creators or platforms.
+`find_creators_by_email` accepts exactly one complete address: `{ "email": "contact@example.com" }` (up to 254 characters). Do not send `emails`, arrays, limits, or pagination parameters. The server trims and lowercases the email before exact matching in the four platforms' email inventories, then joins the matching user IDs to stored profiles. It does not crawl, refresh, or infer account ownership.
 
-Read `data.matches`: each item has `email`, `creators`, and `hasMore`. At most 20 creators are returned per address; `hasMore: true` means truncated results, not a cursor. No pagination is provided. An empty result means no stored match, not that the email or creator does not exist. Each creator has `platform`, `canonicalUrl`, `retrievedAt`, and `creator`; `retrievedAt` is the stored profile update time. Use `creator.id` with `platform` when explicitly asked to save a match to favorites. Preserve the returned `requestId` and `billingRequestId` when reporting an uncertain paid result.
+Read `data.email` and `data.creators`. All matching creators are returned, without a result cap or truncation; there is no `matches` wrapper, `hasMore`, or cursor. An empty `creators` array means no stored profile match, not that the email or creator does not exist. One email can match multiple creators across platforms; results are sorted by `platform` and `id`. A matched email costs once regardless of creator count; an unmatched email is refunded.
+
+Each creator is a flat object using Creator Lookup / public search field names. Every field is present. Missing or platform-inapplicable values are `null`; known empty lists remain `[]`. Preserve nulls as unknown, never zero or false. Read [email reverse-lookup fields](references/email-reverse-lookup.md) for the response shape and complete field definitions. Use the top-level creator `id` with `platform` when explicitly asked to save a match to favorites. Preserve `requestId` and `billingRequestId` when reporting an uncertain paid result.
 
 ## Analysis reports
 
@@ -88,7 +90,7 @@ Save the returned job ID and call `get_creator_folder_export` for that same fold
 
 ## Cost and retries
 
-Default prices: Twitter search and similar search cost 2 credits per returned creator; the other three platforms cost 0.5 (the requested limit is reserved first and unused quantity is refunded). Reverse email lookup costs 1 credit per matched unique email, regardless of how many creators match; unmatched emails are refunded. Other defaults: email lookup is 0.2 credits per valid profile URL even when no email is found; creator and video details are 0.1 credits per successful query. A new audience report is 40 credits and a new fake-follower report is 30 credits. Eligible reports already purchased by the Workspace may be reused without a new purchase; the server determines eligibility. Configured server pricing and returned billing information take precedence over these defaults.
+Default prices: Twitter search and similar search cost 2 credits per returned creator; the other three platforms cost 0.5 (the requested limit is reserved first and unused quantity is refunded). Reverse email lookup costs 1 credit per matched email, regardless of how many creators match; unmatched emails are refunded. Other defaults: email lookup is 0.2 credits per valid profile URL even when no email is found; creator and video details are 0.1 credits per successful query. A new audience report is 40 credits and a new fake-follower report is 30 credits. Eligible reports already purchased by the Workspace may be reused without a new purchase; the server determines eligibility. Configured server pricing and returned billing information take precedence over these defaults.
 
 Mention billing before a paid operation or when asked. State the operation and quantity; if the user has already specified them, proceed without asking again. Do not automatically add paid analysis or enrichment to a general discovery request.
 
