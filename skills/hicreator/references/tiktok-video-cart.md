@@ -2,6 +2,8 @@
 
 Use the existing search result when the user asks to filter a returned shortlist by its stored cart flag. When the user requests a live cart check for a TikTok creator, call `get_creator_detail`:
 
+`hasVideoCart` is a response field, not a supported search filter. Filter the returned items and report unknowns separately; do not add an invented filter or silently issue more paid searches to fill a cart-only quota.
+
 ```json
 {
   "profile_url": "https://www.tiktok.com/@example_creator",
