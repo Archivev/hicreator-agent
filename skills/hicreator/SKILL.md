@@ -11,6 +11,8 @@ Use the connected hiCreator MCP tools for creator research and Workspace favorit
 
 Use the tools advertised by the current client. Installing this Skill does not connect MCP or guarantee that every tool below is deployed. If a required tool is missing, explain which capability is unavailable and use the client's MCP reload or setup instructions; do not substitute another paid operation.
 
+Skill updates and MCP tool discovery are separate. If the client still advertises an older input schema, reload its MCP tools or start a new session before using a new parameter. Updating Skill files alone does not refresh cached tool schemas.
+
 For installations managed by `hicreator-agent` (the current client's target is in `~/.hicreator/manifest.json`), an optional update can run once before the first hiCreator tool call when Node.js 20+ and npm are available:
 
 ```bash
@@ -43,7 +45,8 @@ API keys belong in the client's credential UI or the user's own local interactiv
 |---|---|---|
 | AI search, similar creators, audience analysis | Supported | Supported |
 | Reverse lookup by email, favorites, sharing, export | Supported | Supported |
-| Live creator/video details, find a contact email, fake-follower check | Supported | Not supported |
+| Creator details, find a contact email | Supported | Supported |
+| Video details, fake-follower check | Supported | Not supported |
 
 The product's **Creator Lookup / 查达人** page supports all four platforms at `/data/creator-lookup` (old `/data/email` links redirect). That batch lookup and its gated ingestion/refresh workflow are not public MCP tools. Do not emulate them by calling internal session endpoints or promise that a public detail/email query runs that workflow.
 
@@ -52,7 +55,8 @@ The product's **Creator Lookup / 查达人** page supports all four platforms at
 - Search supports `instagram`, `youtube`, `tiktok`, and `twitter`. Set platform, intent or reference account, and quantity from the request. Ask for missing choices that materially affect the result or cost. `limit` is 1–100 (default 40); do not silently increase it or issue additional searches.
 - Pass `regions` and `excludedRegions` as ISO 3166-1 alpha-2 codes such as `US` or `GB`; a country cannot appear in both. Use structured filters for supported constraints. `workspaceDeduplicationEnabled` excludes previous Workspace search results; Workspace exclusions still apply when it is off. Verify hard constraints against returned data and say which remain unverified.
 - For Twitter, use `filters.twitter` for account type, age range, average/median post views, following counts, and freshness. Do not send video play-count, creator-type, or face-visibility filters. Similar search accepts an X/Twitter profile URL or handle. Read [Twitter search](references/twitter-search.md) for a concrete request and metric distinctions.
-- Details accept one complete profile URL (`profile_url`) or video URL (`video_url`), with platform inferred from the URL. Bare handles and IDs are not detail inputs. Preserve `canonicalUrl` and `retrievedAt`; missing fields mean unknown, not zero. Platform-specific fields are under `platformDetails`.
+- Creator details accept one `profile_url`: an HTTP(S) profile link or domain/path such as `x.com/NASA`. Video details require one complete HTTP(S) `video_url`. Platform is inferred; bare handles and IDs are not detail inputs. Preserve `canonicalUrl` and `retrievedAt`; missing fields mean unknown, not zero. Platform-specific fields are under `platformDetails`.
+- TikTok searches return stored `data.items[].hasVideoCart`; a live cart check uses `get_creator_detail` with `include_video_cart: true` and costs twice the base detail price. Enable it only when the user asks for that check. Read [TikTok cart checks](references/tiktok-video-cart.md) for the request, response path, sample limits, and distinction from stored history.
 - Detail queries do not save or ingest a creator and do not return contact emails. Do not promise that a detail result can be added to favorites: adding requires an existing hiCreator creator with a stable `platform` and `creator_id`, such as a search result.
 - Only call `find_creator_email` when requested and the selected result does not already contain the email. Never automatically enrich search, detail, report, or export results.
 
@@ -90,7 +94,7 @@ Save the returned job ID and call `get_creator_folder_export` for that same fold
 
 ## Cost and retries
 
-Default prices: Twitter search and similar search cost 2 credits per returned creator; the other three platforms cost 0.5 (the requested limit is reserved first and unused quantity is refunded). Reverse email lookup costs 1 credit per matched email, regardless of how many creators match; unmatched emails are refunded. Other defaults: email lookup is 0.2 credits per valid profile URL even when no email is found; creator and video details are 0.1 credits per successful query. A new audience report is 40 credits and a new fake-follower report is 30 credits. Eligible reports already purchased by the Workspace may be reused without a new purchase; the server determines eligibility. Configured server pricing and returned billing information take precedence over these defaults.
+Default prices: Twitter search and similar search cost 2 credits per returned creator; the other three platforms cost 0.5 (the requested limit is reserved first and unused quantity is refunded). Reverse email lookup costs 1 credit per matched email, regardless of how many creators match; unmatched emails are refunded. Email lookup is 0.2 credits per valid profile URL even when no email is found. Creator and video details default to 0.1 credits per successful query; TikTok `include_video_cart: true` doubles the base price (default 0.2), including unknown results. A new audience report is 40 credits and a new fake-follower report is 30 credits. Eligible reports already purchased by the Workspace may be reused without a new purchase; the server determines eligibility. Configured server pricing and returned billing information take precedence over these defaults.
 
 Mention billing before a paid operation or when asked. State the operation and quantity; if the user has already specified them, proceed without asking again. Do not automatically add paid analysis or enrichment to a general discovery request.
 
