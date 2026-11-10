@@ -1,6 +1,6 @@
 ---
 name: hicreator
-description: Discover and evaluate Instagram, YouTube, TikTok, and Twitter/X creators with hiCreator; match emails to profiles, query supported details and reports, and organize, share, or export favorites.
+description: Discover and evaluate Instagram, YouTube, TikTok, and Twitter/X creators with hiCreator; match emails to profiles, query recent posts, details, and reports, and organize, share, or export favorites.
 ---
 
 # hiCreator
@@ -29,6 +29,7 @@ API keys belong in the client's credential UI or the user's own local interactiv
 |---|---|
 | Find creators by a brief | `search_creators_ai` |
 | Find creators like an account | `find_similar_creators` |
+| Inspect recent videos or posts from a creator | `get_creator_recent_posts` |
 | Inspect a creator or video | `get_creator_detail`, `get_video_detail` |
 | Find a public contact email | `find_creator_email` |
 | Find existing creators associated with an email | `find_creators_by_email` |
@@ -45,7 +46,7 @@ API keys belong in the client's credential UI or the user's own local interactiv
 |---|---|---|
 | AI search, similar creators, audience analysis | Supported | Supported |
 | Reverse lookup by email, favorites, sharing, export | Supported | Supported |
-| Creator details, find a contact email | Supported | Supported |
+| Creator details, recent posts, find a contact email | Supported | Supported |
 | Video details, fake-follower check | Supported | Not supported |
 
 The product's **Creator Lookup / 查达人** page supports all four platforms at `/data/creator-lookup` (old `/data/email` links redirect). That batch lookup and its gated ingestion/refresh workflow are not public MCP tools. Do not emulate them by calling internal session endpoints or promise that a public detail/email query runs that workflow.
@@ -56,9 +57,16 @@ The product's **Creator Lookup / 查达人** page supports all four platforms at
 - Pass `regions` and `excludedRegions` as ISO 3166-1 alpha-2 codes such as `US` or `GB`; a country cannot appear in both. Use structured filters for supported constraints. `workspaceDeduplicationEnabled` excludes previous Workspace search results; Workspace exclusions still apply when it is off. Verify hard constraints against returned data and say which remain unverified.
 - For Twitter, use `filters.twitter` for account type, age range, average/median post views, following counts, and freshness. Do not send video play-count, creator-type, or face-visibility filters. Similar search accepts an X/Twitter profile URL or handle. Read [Twitter search](references/twitter-search.md) for a concrete request and metric distinctions.
 - Creator details accept one `profile_url`: an HTTP(S) profile link or domain/path such as `x.com/NASA`. Video details require one complete HTTP(S) `video_url`. Platform is inferred; bare handles and IDs are not detail inputs. Preserve `canonicalUrl` and `retrievedAt`; missing fields mean unknown, not zero. Platform-specific fields are under `platformDetails`.
+- For TikTok AI search and similar search, use `filters.videoCartOnly: true` when the user requests creators with 小黄车 / video-cart evidence. It defaults to false and adds 1 credit per returned creator (default total 1.5). Other platforms reject true before billing. `hasVideoCart` is the result field, not the filter name.
 - TikTok searches return stored `data.items[].hasVideoCart`; a live cart check uses `get_creator_detail` with `include_video_cart: true` and costs twice the base detail price. Enable it only when the user asks for that check. Read [TikTok cart checks](references/tiktok-video-cart.md) for the request, response path, sample limits, and distinction from stored history.
 - Detail queries do not save or ingest a creator and do not return contact emails. Do not promise that a detail result can be added to favorites: adding requires an existing hiCreator creator with a stable `platform` and `creator_id`, such as a search result.
 - Only call `find_creator_email` when requested and the selected result does not already contain the email. Never automatically enrich search, detail, report, or export results.
+
+## Recent videos and posts
+
+Use `get_creator_recent_posts` with one `profile_url` for Instagram, YouTube, TikTok, or Twitter/X. It returns recent content, including non-video posts; it is not a single-video detail query. Do not add `platform`, `limit`, cursor, `include_video_cart`, or identity fields. TikTok requires a direct profile URL, not a post or short link.
+
+Read `data.items`, `data.platform`, `data.canonicalUrl`, and `data.retrievedAt`. Results are a bounded sample, up to 60 items, not guaranteed to be the exact latest N posts. There is no pagination. A successful empty list still costs the configured per-query price (default 0.1 credits). Do not silently query each item for details or use repeated calls to fill a quota. Read [recent posts](references/recent-posts.md) for platform windows, fields, publication-time precision, and billing boundaries.
 
 ## Reverse lookup by email
 
@@ -88,13 +96,13 @@ Audience results contain country, age-range, and gender distributions. Fake-foll
 
 `export_creator_folder` exports existing favorites across all platforms using a saved-date range: `today`, `7_days`, or `30_days`. Ask for the range if omitted; all-time export is unsupported. Use the user's IANA time zone when known, otherwise `UTC` and state that choice; select `zh-CN` or `en-US` for the requested output language. Exports retain hiCreator's 100,000-row and file-size safeguards.
 
-Optional `columns` selects export fields in array order, e.g. `[{"key":"username"},{"key":"median_view_count","label":"Median views"}]`. Omit it to use the server's default columns. Use keys advertised by the tool schema; keys must be unique, and optional labels must be nonempty and contain no control characters. Twitter uses `median_view_count` / `average_view_count`; the video platforms use `median_play_count` / `average_play_count`. Missing platform-specific values remain blank. Chinese output uses `zh-CN`; other requested languages use `en-US`. Custom labels are used literally, without translation. Export reads stored data and does not refresh creators or purchase email lookups.
+Optional `columns` selects export fields in array order, e.g. `[{"key":"username"},{"key":"median_play_count","label":"Median views"}]`. Omit it to use the server's default columns. Use keys advertised by the tool schema; keys must be unique, and optional labels must be nonempty and contain no control characters. All four platforms use export keys `median_play_count` / `average_play_count`; for Twitter these contain post views, not video plays. Do not send the old `median_view_count` / `average_view_count` export keys. This does not rename Twitter search filters or the camelCase fields in search/email results. Missing platform-specific values remain blank. Chinese output uses `zh-CN`; other requested languages use `en-US`. Custom labels are used literally, without translation. Export reads stored data and does not refresh creators or purchase email lookups.
 
 Save the returned job ID and call `get_creator_folder_export` for that same folder and job. A queued or running job is pending, not failed. On success, return the temporary download URL and filename; on failure, report the error. Do not create a second export while the first is pending. An optional `request_id` permits replay of the exact same export request; never reuse it for changed parameters.
 
 ## Cost and retries
 
-Default prices: Twitter search and similar search cost 2 credits per returned creator; the other three platforms cost 0.5 (the requested limit is reserved first and unused quantity is refunded). Reverse email lookup costs 1 credit per matched email, regardless of how many creators match; unmatched emails are refunded. Email lookup is 0.2 credits per valid profile URL even when no email is found. Creator and video details default to 0.1 credits per successful query; TikTok `include_video_cart: true` doubles the base price (default 0.2), including unknown results. A new audience report is 40 credits and a new fake-follower report is 30 credits. Eligible reports already purchased by the Workspace may be reused without a new purchase; the server determines eligibility. Configured server pricing and returned billing information take precedence over these defaults.
+Default prices: Twitter search and similar search cost 2 credits per returned creator; the other three platforms cost 0.5 (the requested limit is reserved first and unused quantity is refunded). TikTok AI and similar search with `filters.videoCartOnly: true` add 1 credit per returned creator to the base search price (default 1.5 total), with unused quantity refunded. Recent-post queries default to 0.1 credits per successful query, including an empty list; failures are refunded. Reverse email lookup costs 1 credit per matched email, regardless of how many creators match; unmatched emails are refunded. Email lookup is 0.2 credits per valid profile URL even when no email is found. Creator and video details default to 0.1 credits per successful query; TikTok `include_video_cart: true` doubles the base price (default 0.2), including unknown results. A new audience report is 40 credits and a new fake-follower report is 30 credits. Eligible reports already purchased by the Workspace may be reused without a new purchase; the server determines eligibility. Configured server pricing and returned billing information take precedence over these defaults.
 
 Mention billing before a paid operation or when asked. State the operation and quantity; if the user has already specified them, proceed without asking again. Do not automatically add paid analysis or enrichment to a general discovery request.
 

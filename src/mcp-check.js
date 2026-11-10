@@ -5,6 +5,7 @@ const EXPECTED_TOOLS = [
   "find_creator_email",
   "find_creators_by_email",
   "get_creator_detail",
+  "get_creator_recent_posts",
   "get_video_detail",
   "create_audience_analysis",
   "create_fake_follower_check",

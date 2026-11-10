@@ -1,8 +1,29 @@
-# TikTok video cart checks
+# TikTok video cart search and checks
 
-Use the existing search result when the user asks to filter a returned shortlist by its stored cart flag. When the user requests a live cart check for a TikTok creator, call `get_creator_detail`:
+## AI search and similar creators
 
-`hasVideoCart` is a response field, not a supported search filter. Filter the returned items and report unknowns separately; do not add an invented filter or silently issue more paid searches to fill a cart-only quota.
+Both `search_creators_ai` and `find_similar_creators` accept `filters.videoCartOnly: true` with `platform: "tiktok"`. The option defaults to false. It selects creators with stored positive cart evidence; it does not prove current TikTok Shop eligibility or product availability.
+
+For AI search:
+
+```json
+{
+  "platform": "tiktok",
+  "query": "US beauty creators",
+  "limit": 10,
+  "filters": { "regions": ["US"], "videoCartOnly": true }
+}
+```
+
+For similar search, use the same filter and replace `query` with `target_account`, for example `"https://www.tiktok.com/@example_creator"`.
+
+The configured base price gains a 1-credit surcharge per returned creator (default 0.5 → 1.5). The requested quantity is reserved and unused quantity refunded. Other platforms reject true before billing. If the feature is disabled or the client schema lacks it, report that limitation; do not silently run an ordinary search or extra paid detail checks. Do not retry an uncertain paid search.
+
+`hasVideoCart` is the response field at `data.items[].hasVideoCart`; the input filter is `filters.videoCartOnly`. If the user only asks to filter an already-returned shortlist, use its existing flags without another paid call and report unknowns separately. Never issue extra searches to silently fill a cart-only quota.
+
+## Live creator check
+
+When the user requests a live cart check for one TikTok creator, call `get_creator_detail` with `include_video_cart: true`. This option is separate from search filtering and is not accepted by the recent-posts tool.
 
 ```json
 {

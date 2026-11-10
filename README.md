@@ -1,6 +1,6 @@
 # hiCreator Agent
 
-Connect AI agents to hiCreator creator discovery, profile and video details, contact emails, reverse lookup by email, audience and fake-follower reports, and favorite-folder workflows. The installer provides verified one-step setup for Codex, Claude Code, and Cursor. Any client that supports remote Streamable HTTP MCP with a custom `Authorization` header can use the same tools.
+Connect AI agents to hiCreator creator discovery, profile and video details, recent posts, contact emails, reverse lookup by email, audience and fake-follower reports, and favorite-folder workflows. The installer provides verified one-step setup for Codex, Claude Code, and Cursor. Any client that supports remote Streamable HTTP MCP with a custom `Authorization` header can use the same tools.
 
 ## Requirements
 
@@ -36,17 +36,19 @@ npx --yes --prefer-online hicreator-agent@latest prepare --json
 
 ## Billing
 
-Twitter AI search and similar-creator search cost 2 credits per returned creator; Instagram, YouTube, and TikTok cost 0.5. Reverse email lookup accepts one `email` per call and returns all matching stored creators as flat objects, with nulls for missing fields. It costs 1 credit per matched email regardless of creator count, with unmatched emails refunded. Email lookup costs 0.2 credits for each valid creator profile URL, including when no public email is found. Creator and video details default to 0.1 credits per successful query. TikTok creator details with `include_video_cart: true` cost twice the base price (default 0.2), including an unknown result; provider failures and timeouts follow the full-refund path. New audience reports cost 40 credits and fake-follower reports cost 30 credits; eligible existing reports can be reused. These are default prices; server pricing takes precedence. The skill never automatically retries paid queries or report submissions.
+Twitter AI search and similar-creator search cost 2 credits per returned creator; Instagram, YouTube, and TikTok cost 0.5. TikTok AI and similar search with `filters.videoCartOnly: true` add 1 credit per returned creator (default total 1.5), with unused quantity refunded. Recent-post queries cost 0.1 credits per successful query, including an empty list; failures are refunded. Reverse email lookup accepts one `email` per call and returns all matching stored creators as flat objects, with nulls for missing fields. It costs 1 credit per matched email regardless of creator count, with unmatched emails refunded. Email lookup costs 0.2 credits for each valid creator profile URL, including when no public email is found. Creator and video details default to 0.1 credits per successful query. TikTok creator details with `include_video_cart: true` cost twice the base price (default 0.2), including an unknown result; provider failures and timeouts follow the full-refund path. New audience reports cost 40 credits and fake-follower reports cost 30 credits; eligible existing reports can be reused. These are default prices; server pricing takes precedence. The skill never automatically retries paid queries or report submissions.
 
 Favorite-folder tools support creation, cursor pagination, folder details, rename, permanent deletion, member listing, single or batch removal, Workspace/public sharing with a stable link, and asynchronous Excel export for today, the last 7 days, or the last 30 days. Excel exports reuse hiCreator's existing 100,000-row and file-size safeguards.
 
 ## Platform coverage
 
-All four platforms support AI and similar search, creator details, contact-email lookup, audience reports, reverse email lookup, and favorites/sharing/export. Twitter/X search uses native post-view filters. Video details and fake-follower checks support Instagram, YouTube, and TikTok. The product's batch Creator Lookup page is a separate workflow, not a public MCP tool.
+All four platforms support AI and similar search, creator details, recent posts, contact-email lookup, audience reports, reverse email lookup, and favorites/sharing/export. Twitter/X search uses native post-view filters. Video details and fake-follower checks support Instagram, YouTube, and TikTok. The product's batch Creator Lookup page is a separate workflow, not a public MCP tool.
 
-TikTok creator details can optionally check up to 30 recent posts for cart tags and return `data.creator.platformDetails.hasVideoCart` as true, false, or null. This live sample differs from the historical flag returned by search and does not establish current shop eligibility. See the [cart-check guide](skills/hicreator/references/tiktok-video-cart.md).
+TikTok AI search and similar search support `filters.videoCartOnly: true` for stored positive cart evidence. TikTok creator details can optionally check up to 30 recent posts for cart tags and return `data.creator.platformDetails.hasVideoCart` as true, false, or null. This live sample differs from the historical flag returned by search and does not establish current shop eligibility. See the [cart-check guide](skills/hicreator/references/tiktok-video-cart.md).
 
-Folder exports support optional ordered `columns` with custom labels and Chinese/English output. The shared skill documents metric differences and does not invent values for unsupported fields.
+Use `get_creator_recent_posts` for a bounded recent-content sample across all four platforms, including non-video posts. It accepts only `profile_url`, with no limit or pagination. See the [recent-posts guide](skills/hicreator/references/recent-posts.md).
+
+Folder exports use `average_play_count` / `median_play_count` across platforms, with Twitter values representing post views. They support optional ordered `columns` with custom labels and Chinese/English output. The shared skill documents metric differences and does not invent values for unsupported fields.
 
 ## Analysis reports
 
@@ -54,7 +56,7 @@ Submit one creator profile URL, save the returned task ID and type, and query th
 
 ## Release order
 
-Deploy the backend's 21-tool MCP set before publishing this installer and the updated capabilities page. Setup checks every expected tool using `initialize` and `tools/list`, without executing business operations. Existing clients keep their previous tools; reload tool discovery to access additions. Skill updates alone do not deploy backend capabilities.
+Deploy the backend's 22-tool MCP set before publishing this installer and the updated capabilities page. Setup checks every expected tool using `initialize` and `tools/list`, without executing business operations. Existing clients keep their previous tools; reload tool discovery to access additions. Skill updates alone do not deploy backend capabilities.
 
 ## Local Files
 

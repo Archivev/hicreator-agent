@@ -15,6 +15,7 @@ const tools = [
   "find_creator_email",
   "find_creators_by_email",
   "get_creator_detail",
+  "get_creator_recent_posts",
   "get_video_detail",
   "create_audience_analysis",
   "create_fake_follower_check",
@@ -134,12 +135,13 @@ for (const [status, kind] of [[400, "protocol"], [401, "auth"], [403, "auth"], [
 }
 
 for (const format of ["json", "sse-lf", "sse-crlf"]) {
-  for (const variant of ["complete", "extra-tool", "wrong-names-same-count", "missing-tool", "missing-report-query", "legacy-20-tools"]) {
+  for (const variant of ["complete", "extra-tool", "wrong-names-same-count", "missing-tool", "missing-report-query", "legacy-20-tools", "missing-recent-posts"]) {
     test(`${format} discovers ${variant} by tool names rather than count`, async (t) => {
       const names = variant === "complete" ? tools
         : variant === "extra-tool" ? [...tools, "future_tool"]
           : variant === "wrong-names-same-count" ? [...tools.slice(1), "wrong_tool"]
-            : variant === "legacy-20-tools" ? tools.filter((name) => name !== "find_creators_by_email")
+            : variant === "missing-recent-posts" ? tools.filter((name) => name !== "get_creator_recent_posts")
+            : variant === "legacy-20-tools" ? tools.filter((name) => !["find_creators_by_email", "get_creator_recent_posts"].includes(name))
             : variant === "missing-report-query" ? tools.filter((name) => name !== "get_creator_report")
             : tools.slice(1);
       const { url, methods } = await withMcpServer(t, (message, response) => {
